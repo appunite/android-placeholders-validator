@@ -1,0 +1,51 @@
+plugins {
+    id 'groovy'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.41'
+    id 'maven'
+    id "java-gradle-plugin"
+    id "com.gradle.plugin-publish" version '0.10.1'
+}
+
+group 'com.appunite.placeholdersvalidator'
+version '1.0.0'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation localGroovy()
+    implementation gradleApi()
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:1.3.41"
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+}
+
+gradlePlugin {
+    plugins {
+        placeholdersValidator {
+            id = 'com.appunite.placeholdersvalidator'
+            implementationClass = 'com.appunite.placeholdersvalidator.PlaceholdersValidatorPlugin'
+        }
+    }
+}
+
+pluginBundle {
+    description = 'Gradle plugin which validates placeholders from translated strings.xml files by comparing them with main strings.xml file.'
+    website = 'https://github.com/appunite/android-placeholders-validator'
+    vcsUrl = 'https://github.com/appunite/android-placeholders-validator'
+    tags = ['android', 'strings', 'translations', 'resources', 'localization', 'placeholders', 'validation']
+
+    plugins {
+        placeholdersValidator {
+            displayName = 'Placeholders Validator'
+        }
+    }
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
