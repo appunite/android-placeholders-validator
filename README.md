@@ -2,7 +2,7 @@
 Gradle plugin which validates placeholders from translated strings.xml files by comparing them with main strings.xml file.
 
 # Why may I need it?
-If other people makes translations for your app there is a risk that they may modify and malform string placeholders.\
+If other people make translations for your app there is a risk that they may modify and malform string placeholders.\
 I struggled with such situations which eventually led to app crashing only for Korean people (sorry Korean people).\
 Then I applied the plugin in my other apps and it turned out that some placeholders are also malformed! Luckily it didn't
 make the app crashing, but not luckily, displayed strings were incorrectly formatted.
