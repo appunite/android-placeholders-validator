@@ -17,12 +17,16 @@ open class PlaceholdersValidatorTask : DefaultTask() {
     fun validateStringsPlaceholders() {
         description = "Validates placeholders from translated strings.xml files"
 
+        val isStringXmlInValuesFolder = { path : String ->
+            path.endsWith("/values/strings.xml") || path.endsWith("\\values\\strings.xml")
+        }
+
         val mainStringsFile: File = resourcesDir.find {
-            it.absolutePath.endsWith("/values/strings.xml")
+            isStringXmlInValuesFolder(it.absolutePath)
         }!!
 
         val translatedStrings: List<File> = resourcesDir.filter {
-            it.name == "strings.xml" && !it.absolutePath.endsWith("/values/strings.xml")
+            it.name == "strings.xml" && !isStringXmlInValuesFolder(it.absolutePath)
         }.files.toList()
 
         val mainFilePlaceholders: PlaceholdersForFile = createStringPlaceholdersMap(mainStringsFile)
