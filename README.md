@@ -42,5 +42,11 @@ apply plugin: "com.appunite.placeholdersvalidator"
 placeholdersValidator {
     resourcesDir = android.sourceSets.main.res.sourceFiles
 }
+preBuild.dependsOn placeholdersValidatorTask
 
+```
+
+Code below will run the validation before building. You can adjust it to your needs though.
+```
+preBuild.dependsOn placeholdersValidatorTask
 ```
