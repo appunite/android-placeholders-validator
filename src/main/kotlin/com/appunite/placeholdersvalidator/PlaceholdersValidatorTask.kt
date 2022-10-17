@@ -5,17 +5,25 @@ import groovy.util.XmlParser
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleScriptException
 import org.gradle.api.internal.file.CompositeFileTree
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-open class PlaceholdersValidatorTask : DefaultTask() {
+abstract class PlaceholdersValidatorTask : DefaultTask() {
 
-    lateinit var resourcesDir: CompositeFileTree
     private val validator = PlaceholdersValidator()
+
+    @get:Input
+    abstract val resourcesDir: Property<CompositeFileTree>
+
+    init {
+        description = "Validates placeholders from translated strings.xml files"
+    }
 
     @TaskAction
     fun validateStringsPlaceholders() {
-        description = "Validates placeholders from translated strings.xml files"
+        val resourcesDir = resourcesDir.get()
 
         val isStringXmlInValuesFolder = { path : String ->
             path.endsWith("/values/strings.xml") || path.endsWith("\\values\\strings.xml")

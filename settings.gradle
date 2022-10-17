@@ -1,2 +1,3 @@
 rootProject.name = 'placeholders-validator'
 
+include ':lib'
