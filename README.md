@@ -30,7 +30,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "gradle.plugin.com.appunite.placeholdersvalidator:placeholders-validator:1.0.1"
+    classpath "gradle.plugin.com.appunite.placeholdersvalidator:placeholders-validator:1.0.2"
   }
 }
 ```
