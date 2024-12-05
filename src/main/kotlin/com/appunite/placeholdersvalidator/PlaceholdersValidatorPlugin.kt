@@ -2,7 +2,9 @@ package com.appunite.placeholdersvalidator
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.internal.file.CompositeFileTree
+import org.gradle.api.file.FileTree
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
 
 const val EXTENSION_NAME = "placeholdersValidator"
 const val TASK_NAME = "placeholdersValidatorTask"
@@ -16,7 +18,7 @@ abstract class PlaceholdersValidatorPlugin : Plugin<Project> {
         }
 
         val extension = project.extensions
-            .create(EXTENSION_NAME, PlaceholdersValidatorExtension::class.java)
+            .create(EXTENSION_NAME, PlaceholdersValidatorExtension::class.java, project.objects)
 
         project.tasks.register(TASK_NAME, PlaceholdersValidatorTask::class.java) { task ->
             task.resourcesDir.set(extension.resourcesDir)
@@ -25,6 +27,6 @@ abstract class PlaceholdersValidatorPlugin : Plugin<Project> {
 
 }
 
-open class PlaceholdersValidatorExtension {
-    lateinit var resourcesDir: CompositeFileTree
+abstract class PlaceholdersValidatorExtension(objects: ObjectFactory) {
+    val resourcesDir: Property<FileTree> = objects.property(FileTree::class.java)
 }

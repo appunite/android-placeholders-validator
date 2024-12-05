@@ -1,13 +1,13 @@
 plugins {
     id 'groovy'
-    id 'org.jetbrains.kotlin.jvm' version '1.7.0'
+    id 'org.jetbrains.kotlin.jvm' version '2.0.21'
     id "java-gradle-plugin"
-    id "com.gradle.plugin-publish" version '0.21.0'
+    id "com.gradle.plugin-publish" version '1.3.0'
     id 'maven-publish'
 }
 
 group 'com.appunite.placeholdersvalidator'
-version '1.0.2'
+version '1.0.3'
 
 repositories {
     jcenter()
@@ -17,28 +17,21 @@ dependencies {
     implementation localGroovy()
     implementation gradleApi()
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:1.7.0"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:2.0.21"
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
 gradlePlugin {
+    website = 'https://github.com/appunite/android-placeholders-validator'
+    vcsUrl = 'https://github.com/appunite/android-placeholders-validator'
+
     plugins {
         placeholdersValidator {
             id = 'com.appunite.placeholdersvalidator'
-            implementationClass = 'com.appunite.placeholdersvalidator.PlaceholdersValidatorPlugin'
-        }
-    }
-}
-
-pluginBundle {
-    description = 'Gradle plugin which validates placeholders from translated strings.xml files by comparing them with main strings.xml file.'
-    website = 'https://github.com/appunite/android-placeholders-validator'
-    vcsUrl = 'https://github.com/appunite/android-placeholders-validator'
-    tags = ['android', 'strings', 'translations', 'resources', 'localization', 'placeholders', 'validation']
-
-    plugins {
-        placeholdersValidator {
             displayName = 'Placeholders Validator'
+            description = 'Gradle plugin which validates placeholders from translated strings.xml files by comparing them with main strings.xml file.'
+            implementationClass = 'com.appunite.placeholdersvalidator.PlaceholdersValidatorPlugin'
+            tags = ['android', 'strings', 'translations', 'resources', 'localization', 'placeholders', 'validation']
         }
     }
 }
@@ -55,13 +48,13 @@ publishing {
 }
 
 compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_21
 }
 compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_21
 }
 
 // Workaround for https://github.com/gradle/gradle/issues/17236
-tasks.withType(Copy).all {
-    duplicatesStrategy 'exclude'
+tasks.withType(Copy).configureEach {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
