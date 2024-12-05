@@ -33,7 +33,7 @@ class PlaceholdersValidatorTest {
         expected["8"] = listOf("%d", "%s", "%1${d}s", "%2${d}d")
         expected["9"] = listOf()
         expected["10"] = listOf()
-        expected[PLURALS_KEY] = listOf("%2${d}d")
+        expected[PLURALS_KEY] = listOf("%1${d}.1f", "%2${d}d")
 
         assertEquals(expected, result)
     }

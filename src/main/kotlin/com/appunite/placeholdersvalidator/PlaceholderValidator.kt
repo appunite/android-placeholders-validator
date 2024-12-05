@@ -44,7 +44,7 @@ class PlaceholdersValidator {
             .map { node -> node.takeFirstPluralsNodeIfExists() }
             .forEach { node ->
                 val text: String = node.value().toString()
-                val placeholders: List<String> = "(%[0-9]+\\$[sd])|(%[sdf])".toRegex()
+                val placeholders: List<String> = "%(\\d+\\\$)?(\\.\\d+)?[sdfgG]".toRegex()
                     .findAll(text)
                     .toList()
                     .map { result -> result.value }
