@@ -22,6 +22,7 @@ abstract class PlaceholdersValidatorPlugin : Plugin<Project> {
 
         project.tasks.register(TASK_NAME, PlaceholdersValidatorTask::class.java) { task ->
             task.resourcesDir.set(extension.resourcesDir)
+            task.ignorePlurals.set(extension.ignorePlurals)
         }
     }
 
@@ -29,4 +30,5 @@ abstract class PlaceholdersValidatorPlugin : Plugin<Project> {
 
 abstract class PlaceholdersValidatorExtension(objects: ObjectFactory) {
     val resourcesDir: Property<FileTree> = objects.property(FileTree::class.java)
+    val ignorePlurals: Property<Boolean> = objects.property(Boolean::class.java)
 }

@@ -5,10 +5,9 @@ import groovy.util.XmlParser
 import org.junit.Test
 import java.io.StringReader
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class PlaceholdersValidatorTest {
-
-    private val d = "$"
 
     private lateinit var validator: PlaceholdersValidator
 
@@ -21,7 +20,7 @@ class PlaceholdersValidatorTest {
         create()
         val parsedXml: Node = XmlParser().parse(StringReader(xmlWithPlaceholders))
 
-        val result: Map<String, List<String>> = validator.extractPlaceholdersFromXml(parsedXml)
+        val result: Map<String, List<String>> = validator.extractPlaceholdersFromXml(parsedXml, ignorePluralsNode = false)
 
         val expected = mutableMapOf<String, List<String>>()
         expected["1"] = listOf("%1${d}s")
@@ -34,6 +33,7 @@ class PlaceholdersValidatorTest {
         expected["8"] = listOf("%d", "%s", "%1${d}s", "%2${d}d")
         expected["9"] = listOf()
         expected["10"] = listOf()
+        expected[PLURALS_KEY] = listOf("%2${d}d")
 
         assertEquals(expected, result)
     }
@@ -74,6 +74,15 @@ class PlaceholdersValidatorTest {
         )
     }
 
+    @Test
+    fun `when plurals ignored, then do not parse plurals`() {
+        create()
+        val mainFilePlaceholders = extractPlaceholdersFrom(
+            xmlWithPlaceholders, ignorePlurals = true
+        )
+        assertTrue { mainFilePlaceholders.none { it.key == PLURALS_KEY } }
+    }
+
     private fun ValidationError.assertPlaceholderError(
         key: String,
         placeholders: List<String>,
@@ -86,9 +95,12 @@ class PlaceholdersValidatorTest {
         assertEquals(file, this.affectedFilePath)
     }
 
-    private fun extractPlaceholdersFrom(xml: String): Map<String, List<String>> {
+    private fun extractPlaceholdersFrom(
+        xml: String,
+        ignorePlurals: Boolean = false
+    ): Map<String, List<String>> {
         val parsedXml = XmlParser().parse(StringReader(xml))
-        return validator.extractPlaceholdersFromXml(parsedXml)
+        return validator.extractPlaceholdersFromXml(parsedXml, ignorePluralsNode = ignorePlurals)
     }
 
     private val xmlWithPlaceholders = """<?xml version="1.0" encoding="utf-8"?>
@@ -103,6 +115,10 @@ class PlaceholdersValidatorTest {
         <string name="8">"All together: %d %s %1${d}s %2${d}d"</string>
         <string name="9">"All Wrong: %a %1s %2d %1$d %$ %1${d}${d}"</string>
         <string name="10">"Text"</string>
+        <plurals name="plurals_key">
+            <item quantity="one">%1${d}.1f (%2${d}d review)</item>
+            <item quantity="other">%1${d}.1f (%2${d}d reviews)</item>
+        </plurals>
     </resources>
     """
 
@@ -119,4 +135,10 @@ class PlaceholdersValidatorTest {
         <string name="8">"All together: d s 1%s %${d}d"</string>
     </resources>
     """
+
+    companion object {
+        private const val d = "$"
+        private const val PLURALS_KEY = "plurals_key"
+    }
 }
+

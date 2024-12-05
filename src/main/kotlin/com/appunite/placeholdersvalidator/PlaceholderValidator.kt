@@ -32,20 +32,46 @@ class PlaceholdersValidator {
         return errors.toList()
     }
 
-    fun extractPlaceholdersFromXml(parsedXml: Node): Map<String, List<String>> {
+    fun extractPlaceholdersFromXml(
+        parsedXml: Node,
+        ignorePluralsNode: Boolean,
+    ): Map<String, List<String>> {
         val stringKeyToPlaceholders = mutableMapOf<String, List<String>>()
 
-        parsedXml.children().filterIsInstance<Node>().forEach { node ->
-            val text: String = node.value().toString()
-            val placeholders: List<String> = "(%[0-9]+\\$[sd])|(%[sd])".toRegex()
-                .findAll(text)
-                .toList()
-                .map { result -> result.value }
+        parsedXml.children()
+            .filterIsInstance<Node>()
+            .filterNot { node -> ignorePluralsNode && node.isPlurals() }
+            .map { node -> node.takeFirstPluralsNodeIfExists() }
+            .forEach { node ->
+                val text: String = node.value().toString()
+                val placeholders: List<String> = "(%[0-9]+\\$[sd])|(%[sdf])".toRegex()
+                    .findAll(text)
+                    .toList()
+                    .map { result -> result.value }
 
-            stringKeyToPlaceholders[node.attribute("name").toString()] = placeholders
-        }
+                stringKeyToPlaceholders[node.attribute("name").toString()] = placeholders
+            }
 
         return stringKeyToPlaceholders
+    }
+
+    /**
+     * For plurals we only take the first string from each language as each language
+     * can have various amount of plurals.
+     */
+    private fun Node.takeFirstPluralsNodeIfExists() = if (isPlurals()) {
+        (children().first() as Node).also { childNode ->
+            // Use the name from the plurals node
+            childNode.attributes()["name"] = attribute("name").toString()
+        }
+    } else {
+        this
+    }
+
+    private fun Node.isPlurals() = name() == NODE_PLURALS
+
+    companion object {
+        private const val NODE_PLURALS = "plurals"
     }
 }
 

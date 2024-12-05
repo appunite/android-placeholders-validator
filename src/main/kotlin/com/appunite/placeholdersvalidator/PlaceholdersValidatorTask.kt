@@ -18,6 +18,8 @@ abstract class PlaceholdersValidatorTask : DefaultTask() {
 
     @get:Input
     abstract val resourcesDir: Property<FileTree>
+    @get:Input
+    abstract val ignorePlurals: Property<Boolean>
 
     init {
         description = "Validates placeholders from translated strings.xml files"
@@ -26,6 +28,7 @@ abstract class PlaceholdersValidatorTask : DefaultTask() {
     @TaskAction
     fun validateStringsPlaceholders() {
         val resourcesDir = resourcesDir.get()
+        val ignorePlurals = ignorePlurals.get()
 
         val isStringXmlInValuesFolder = { path : String ->
             path.endsWith("/values/strings.xml") || path.endsWith("\\values\\strings.xml")
@@ -39,9 +42,11 @@ abstract class PlaceholdersValidatorTask : DefaultTask() {
             it.name == "strings.xml" && !isStringXmlInValuesFolder(it.absolutePath)
         }.files.toList()
 
-        val mainFilePlaceholders: PlaceholdersForFile = createStringPlaceholdersMap(mainStringsFile)
+        val mainFilePlaceholders: PlaceholdersForFile = createStringPlaceholdersMap(
+            mainStringsFile, ignorePlurals
+        )
         val translatedFilesPlaceholders: List<PlaceholdersForFile> = translatedStrings.map {
-            createStringPlaceholdersMap(it)
+            createStringPlaceholdersMap(it, ignorePlurals)
         }
 
         val errors = validator.validatePlaceholders(mainFilePlaceholders, translatedFilesPlaceholders)
@@ -51,10 +56,13 @@ abstract class PlaceholdersValidatorTask : DefaultTask() {
         }
     }
 
-    private fun createStringPlaceholdersMap(file: File): PlaceholdersForFile {
+    private fun createStringPlaceholdersMap(
+        file: File,
+        ignorePlurals: Boolean
+    ): PlaceholdersForFile {
         val parsedFile: Node = XmlParser().parse(file)
         return PlaceholdersForFile(
-            validator.extractPlaceholdersFromXml(parsedFile),
+            validator.extractPlaceholdersFromXml(parsedFile, ignorePlurals),
             file.absolutePath
         )
     }
