@@ -4,8 +4,10 @@ import groovy.util.Node
 
 class PlaceholdersValidator {
 
-    fun validatePlaceholders(mainFilePlaceholders: PlaceholdersForFile,
-                             translatedFilesPlaceholders: List<PlaceholdersForFile>): List<ValidationError> {
+    fun validatePlaceholders(
+        mainFilePlaceholders: PlaceholdersForFile,
+        translatedFilesPlaceholders: List<PlaceholdersForFile>
+    ): List<ValidationError> {
         val errors = mutableListOf<ValidationError>()
 
         translatedFilesPlaceholders.forEach { placeholdersForFile ->
@@ -33,15 +35,14 @@ class PlaceholdersValidator {
     fun extractPlaceholdersFromXml(parsedXml: Node): Map<String, List<String>> {
         val stringKeyToPlaceholders = mutableMapOf<String, List<String>>()
 
-        parsedXml.children().filter { it is Node }.forEach {
-            val node = it as Node
+        parsedXml.children().filterIsInstance<Node>().forEach { node ->
             val text: String = node.value().toString()
-            val placeholders: List<String> = "(%[0-9]+\\$[sd])|(\\$[sd])".toRegex()
+            val placeholders: List<String> = "(%[0-9]+\\$[sd])|(%[sd])".toRegex()
                 .findAll(text)
                 .toList()
                 .map { result -> result.value }
 
-            stringKeyToPlaceholders[it.attribute("name").toString()] = placeholders
+            stringKeyToPlaceholders[node.attribute("name").toString()] = placeholders
         }
 
         return stringKeyToPlaceholders
