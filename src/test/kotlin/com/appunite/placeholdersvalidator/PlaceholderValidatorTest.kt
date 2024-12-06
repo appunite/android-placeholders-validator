@@ -20,7 +20,9 @@ class PlaceholdersValidatorTest {
         create()
         val parsedXml: Node = XmlParser().parse(StringReader(xmlWithPlaceholders))
 
-        val result: Map<String, List<String>> = validator.extractPlaceholdersFromXml(parsedXml, ignorePluralsNode = false)
+        val result: Map<String, List<String>> = validator.extractPlaceholdersFromXml(
+            parsedXml, ignorePluralsNode = false
+        )
 
         val expected = mutableMapOf<String, List<String>>()
         expected["1"] = listOf("%1${d}s")
@@ -71,6 +73,44 @@ class PlaceholdersValidatorTest {
             placeholders = listOf("%s"),
             shouldBePlaceholders = listOf("%d", "%s", "%1${d}s", "%2${d}d"),
             "de"
+        )
+    }
+
+    @Test
+    fun `given ignoring order for german, when wrong order for portuguese and german, then ignore order only for german`() {
+        create()
+
+        val mainXml = """<?xml version="1.0" encoding="utf-8"?>
+    <resources>
+        <string name="1">"Two placeholders %1${d}s %2${d}s"</string>
+        <string name="2">"String: %s"</string>
+    </resources>
+    """
+
+        val wrongOrderFileXml = """<?xml version="1.0" encoding="utf-8"?>
+    <resources>
+        <string name="1">"Two placeholders %2${d}s %1${d}s"</string>
+        <string name="2">"String: %s"</string>
+    </resources>
+    """
+        val mainFilePlaceholders = extractPlaceholdersFrom(mainXml)
+        val wrongOrderFilePlaceholders = extractPlaceholdersFrom(wrongOrderFileXml)
+
+        val errors = validator.validatePlaceholders(
+            PlaceholdersForFile(mainFilePlaceholders, "/values/strings.xml"),
+            listOf(
+                PlaceholdersForFile(mainFilePlaceholders, "/values-es/strings.xml"),
+                PlaceholdersForFile(wrongOrderFilePlaceholders, "/values-de/strings.xml"),
+                PlaceholdersForFile(wrongOrderFilePlaceholders, "/values-pt/strings.xml")
+            ),
+            ignoredOrderLanguages = setOf("values-de/strings.xml")
+        )
+
+        errors.first().assertPlaceholderError(
+            key = "1",
+            placeholders = listOf("%2${d}s", "%1${d}s"),
+            shouldBePlaceholders = listOf("%1${d}s", "%2${d}s"),
+            file = "/values-pt/strings.xml"
         )
     }
 

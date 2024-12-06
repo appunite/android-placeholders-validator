@@ -8,6 +8,7 @@ import org.gradle.api.file.ConfigurableFileTree
 import org.gradle.api.file.FileTree
 import org.gradle.api.internal.file.CompositeFileTree
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import java.io.File
@@ -20,6 +21,8 @@ abstract class PlaceholdersValidatorTask : DefaultTask() {
     abstract val resourcesDir: Property<FileTree>
     @get:Input
     abstract val ignorePlurals: Property<Boolean>
+    @get:Input
+    abstract val ignoredOrderLanguages: SetProperty<String>
 
     init {
         description = "Validates placeholders from translated strings.xml files"
@@ -49,7 +52,12 @@ abstract class PlaceholdersValidatorTask : DefaultTask() {
             createStringPlaceholdersMap(it, ignorePlurals)
         }
 
-        val errors = validator.validatePlaceholders(mainFilePlaceholders, translatedFilesPlaceholders)
+        val errors = validator.validatePlaceholders(
+            mainFilePlaceholders,
+            translatedFilesPlaceholders,
+            ignoredOrderLanguages.get()
+        )
+
         if (errors.isNotEmpty()) {
             val errorMessage = errors.fold("", { acc, error -> acc + error.message })
             throw GradleScriptException(errorMessage, Throwable(errorMessage))

@@ -6,16 +6,27 @@ class PlaceholdersValidator {
 
     fun validatePlaceholders(
         mainFilePlaceholders: PlaceholdersForFile,
-        translatedFilesPlaceholders: List<PlaceholdersForFile>
+        translatedFilesPlaceholders: List<PlaceholdersForFile>,
+        ignoredOrderLanguages: Set<String> = emptySet()
     ): List<ValidationError> {
         val errors = mutableListOf<ValidationError>()
 
         translatedFilesPlaceholders.forEach { placeholdersForFile ->
+            val ignoreOrder = ignoredOrderLanguages.any {
+                placeholdersForFile.filePath.endsWith(it)
+            }
+
             mainFilePlaceholders.placeholders.forEach { (stringKey, referencePlaceholders) ->
                 if (placeholdersForFile.placeholders.containsKey(stringKey)) { // We don't want to validate not translated strings
-                    val filePlaceholders: List<String> = placeholdersForFile.placeholders[stringKey].orEmpty()
+                    val filePlaceholders: List<String> = placeholdersForFile
+                        .placeholders[stringKey]
+                        .orEmpty()
 
-                    if (referencePlaceholders != filePlaceholders) {
+                    val placeholdersMatches = translatedPlaceholderMatchWithReference(
+                        filePlaceholders, referencePlaceholders, ignoreOrder
+                    )
+
+                    if (!placeholdersMatches) {
                         errors.add(
                             ValidationError(
                                 placeholders = filePlaceholders,
@@ -54,6 +65,18 @@ class PlaceholdersValidator {
 
         return stringKeyToPlaceholders
     }
+
+    private fun translatedPlaceholderMatchWithReference(
+        translatedPlaceholders: List<String>,
+        referencePlaceholders: List<String>,
+        ignoreOrder: Boolean
+    ): Boolean {
+        return translatedPlaceholders.sortIfNeeded(ignoreOrder) ==
+                referencePlaceholders.sortIfNeeded(ignoreOrder)
+    }
+
+    private fun List<String>.sortIfNeeded(sort: Boolean): List<String> =
+        if (sort) toMutableList().sorted() else this
 
     /**
      * For plurals we only take the first string from each language as each language
