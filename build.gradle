@@ -47,11 +47,17 @@ publishing {
     }
 }
 
-compileKotlin {
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_21
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
+
+compileKotlin {
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_17
+}
+
 compileTestKotlin {
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_21
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_17
 }
 
 // Workaround for https://github.com/gradle/gradle/issues/17236
