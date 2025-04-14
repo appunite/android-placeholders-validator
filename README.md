@@ -26,7 +26,7 @@ In the main `build.gradle` file:
 buildscript {
   plugins {
     // When not using .toml
-    id("com.appunite.placeholdersvalidator") version("1.1.0") apply(false)
+    id("com.appunite.placeholdersvalidator") version("1.2.0") apply(false)
   }
 }
 ```
