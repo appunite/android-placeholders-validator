@@ -45,8 +45,6 @@ At the end of your app module `build.gradle` file:
 placeholdersValidator {
     // Path to your main source set
     resourcesDir = android.sourceSets.getByName("main").res.getSourceFiles()
-    // It's possible to ignore order for specific languages. It's useful for languages like Japanese 
-    ignoredOrderLanguages.set(setOf("values-ja/strings.xml"))
     // Disable plurals validation. By default it's true and only the first plural option is verified due to 
     // the fact that each language can have different number of options [one, few, many, others]
     ignorePlurals = false
